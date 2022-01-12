@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { nanoid } from "nanoid";
+import { ContactForm } from "./ContactForm/ContactForm";
+import { Filter } from "./Filter/Filter";
+import { ContactList } from "./ContactList/ContactList";
 
 export class App extends Component {
 state = {
@@ -10,79 +13,48 @@ state = {
     {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
   ],
   filter: '',
-  name: '',
-  number: '',
   }
   
-  loginInputId = nanoid();
-  telInputId = nanoid()
   filterInputId=nanoid()
 
-  handleInputChange = (e) => {
-    const{value, name}=e.currentTarget
-    this.setState({
-      [name]:value,
-    })
-  }
-  handleSubmit = e => {
-    e.preventDefault();
+  addContact = ({name, number}) => {
 
+    console.log(name, number);
     const addContact = {
       id: nanoid(),
-      name: this.state.name,
-      number: this.state.number,
+      name,
+      number,
     }
     this.setState(prevState =>( {
       contacts:[addContact, ...prevState.contacts],
     }))
-
-    this.reset()
   }
+
   changeFilter = e => {
     this.setState({filter:e.currentTarget.value})
   }
-  
-  reset() {
-    this.setState({
-      name: '',
-      number: '',
-    })
+  getVisibleContacts = () => {
+    const{filter, contacts}=this.state
+    const normalizedFilter = filter.toLowerCase()
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter))
   }
+  
+  
+ 
 
   render() {
-    const{name, contacts,number, filter}=this.state
+    const { filter } = this.state
+    const visibleContacts = this.getVisibleContacts()
+
     return <div>
     <h1>Phonebook</h1>
-      <form onSubmit={this.handleSubmit}>
-        <label htmlFor={this.loginInputId}>Name</label><br/>
-        <input
-        type="text"
-          name="name"
-          value={name}
-          id={this.loginInputId}
-          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-          required
-        onChange={this.handleInputChange}
-        /><br/>
-        <label htmlFor={this.telInputId}>Number</label><br/>
-        <input type="tel" name="number" value={number} id={this.telInputId} pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-          required
-          onChange={this.handleInputChange}></input>
-        <br/>
-        <button type="submit">Add contact</button>
-      </form>
-      <label htmlFor={this.filterInputId}>Find contacts by name</label><br/>
-        <input type="text" name="filter" value={filter} id={this.filterInputId} onChange={this.changeFilter}></input><br/>
-
-
+      <ContactForm onSubmit={this.addContact} />
+      
+      
       <h2>Contacts</h2>
-      <ul>
-        {contacts.map(contact => {
-          return <li key={contact.id}>{`${ contact.name}: ${contact.number}`}</li>
-      })}
-      </ul>
+      <Filter value={filter} onChange={this.changeFilter} />
+      <ContactList value={visibleContacts} />
     </div>
   }
 }
