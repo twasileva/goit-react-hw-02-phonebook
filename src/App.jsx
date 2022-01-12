@@ -15,18 +15,21 @@ state = {
   filter: '',
   }
   
-  filterInputId=nanoid()
-
   addContact = ({name, number}) => {
 
-    console.log(name, number);
     const addContact = {
       id: nanoid(),
       name,
       number,
     }
     this.setState(prevState =>( {
-      contacts:[addContact, ...prevState.contacts],
+      contacts: prevState.contacts.map(contact => {
+        if (contact.name === name || contact.number === number) {
+            alert(`${name} is already in contacts`)
+        }
+          return {contacts:[addContact, ...prevState.contacts]}
+        
+      })
     }))
   }
 
@@ -36,15 +39,20 @@ state = {
   getVisibleContacts = () => {
     const{filter, contacts}=this.state
     const normalizedFilter = filter.toLowerCase()
+
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter))
+    
   }
-  
-  
- 
+  deleteContact = contactId => {
+    this.setState(prevState => ({
+      contacts:prevState.contacts.filter(contact=>contact.id !== contactId)
+    }))
+  }
+
 
   render() {
-    const { filter } = this.state
+    const { filter} = this.state
     const visibleContacts = this.getVisibleContacts()
 
     return <div>
@@ -54,7 +62,7 @@ state = {
       
       <h2>Contacts</h2>
       <Filter value={filter} onChange={this.changeFilter} />
-      <ContactList value={visibleContacts} />
+      <ContactList value={visibleContacts} onDeleteContact={this.deleteContact} />
     </div>
   }
 }
