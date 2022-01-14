@@ -15,26 +15,27 @@ state = {
   filter: '',
   }
   
-  addContact = ({name, number}) => {
+  addContact = ({ name, number }) => {
 
     const addContact = {
       id: nanoid(),
       name,
       number,
     }
-    this.setState(prevState =>( {
-      contacts: prevState.contacts.map(contact => {
-        if (contact.name === name || contact.number === number) {
-            alert(`${name} is already in contacts`)
-        }
-          return {contacts:[addContact, ...prevState.contacts]}
-        
-      })
-    }))
-  }
 
+    const isUnique = this.state.contacts.some(contact => contact.name === name)
+
+    if (isUnique) {
+      alert(`${name} is already in contacts. `)
+    } else {
+      this.setState(prevState => ({
+        contacts:[addContact, ...prevState.contacts]
+      }))
+    }
+  }
+  
   changeFilter = e => {
-    this.setState({filter:e.currentTarget.value})
+    this.setState({filter:e.target.value})
   }
   getVisibleContacts = () => {
     const{filter, contacts}=this.state
